@@ -1,0 +1,256 @@
+/*****************************************************************************/
+//   Name: Zachary Nelson
+//   Class: CPSC 3710
+//   Date: February 6th 2019
+//   This code was edited for Assignment 2 of CPSC 3710, Question 1.
+//   When running the code, please provide the following arguments:
+//   rotate p1x p1y p1z p2x p2y p2z cx cy cz
+//   p1x,y, and z represent the starting point of the arbitrary vector
+//   p2x,y, and z represent the ending point of the arbitrary vector
+//   cx,cy,and cz represent the center of the cube that you will rotate.
+//   For the sake of this unit cube, the center point should be 0,0,0
+//
+/*****************************************************************************/
+
+#define PROGRAM_TITLE "Assignment 1"
+#define DISPLAY_INFO "Assignment 1 for CPSC 3710"
+
+#include <stdlib.h>  // Useful for the following includes.
+#include <stdio.h>    
+#include <string.h>  // For spring operations.
+
+#include <GL/gl.h>   // OpenGL itself.
+#include <GL/glu.h>  // GLU support library.
+#include <GL/glut.h> // GLUT support library.
+
+// Some global variables.
+// Window IDs, window width and height.
+int Window_ID;
+int Window_Width = 600;
+int Window_Height = 400;
+
+// Cube position and rotation speed variables.
+float Z_Off   =-5.0f;
+
+// The arbitrary vector variables
+int vectorX;
+int vectorY;
+int vectorZ;
+
+// The center of the cube variables
+int centerX;
+int centerY;
+int centerZ;
+
+
+/////////////////////////////////////////////////////////
+// Routine which actually does the drawing             //
+/////////////////////////////////////////////////////////
+void CallBackRenderScene(void)
+{
+   
+   // Need to manipulate the ModelView matrix to move our model around.
+   glMatrixMode(GL_MODELVIEW);
+
+   // Reset to 0,0,0; no rotation, no scaling.
+   glLoadIdentity(); 
+
+   // Move the object back from the screen.
+   glTranslatef(0.0f,0.0f,Z_Off);
+
+   // Clear the color and depth buffers.
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   // OK, let's start drawing our planer quads.
+   glBegin(GL_QUADS); 
+
+   // Far face
+   glNormal3f( 0.0f, 0.0f,-1.0f);
+   glColor4f(0.0f,1.0f,0.0f,1.0); 
+
+   glTexCoord2f(0.995f, 0.005f); glVertex3f(-1.0f, -1.0f, -1.0f);
+   glTexCoord2f(2.995f, 2.995f); glVertex3f(-1.0f,  1.0f, -1.0f);
+   glTexCoord2f(0.005f, 0.995f); glVertex3f( 1.0f,  1.0f, -1.0f);
+   glTexCoord2f(0.005f, 0.005f); glVertex3f( 1.0f, -1.0f, -1.0f);
+
+   // Right face
+   glNormal3f( 1.0f, 0.0f, 0.0f);
+   glColor4f(0.2f,0.2f,0.9f,0.5);
+
+   glTexCoord2f(0.995f, 0.005f); glVertex3f( 1.0f, -1.0f, -1.0f); 
+   glTexCoord2f(0.995f, 0.995f); glVertex3f( 1.0f,  1.0f, -1.0f);
+   glTexCoord2f(0.005f, 0.995f); glVertex3f( 1.0f,  1.0f,  1.0f);
+   glTexCoord2f(0.005f, 0.005f); glVertex3f( 1.0f, -1.0f,  1.0f);
+
+   // Front face
+   glNormal3f( 0.0f, 0.0f, 1.0f);
+   glColor4f( 0.9f, 0.2f, 0.2f, 0.5);
+   
+   glTexCoord2f( 0.005f, 0.005f); glVertex3f(-1.0f, -1.0f,  1.0f);
+   glTexCoord2f( 0.995f, 0.005f); glVertex3f( 1.0f, -1.0f,  1.0f);
+   glTexCoord2f( 0.995f, 0.995f); glVertex3f( 1.0f,  1.0f,  1.0f); 
+   glTexCoord2f( 0.005f, 0.995f); glVertex3f(-1.0f,  1.0f,  1.0f);
+
+   // Left Face
+   glNormal3f(-1.0f, 0.0f, 0.0f);  
+   glColor4f(0.9,0.9,0.2,0.5);
+   
+   glTexCoord2f(0.005f, 0.005f); glVertex3f(-1.0f, -1.0f, -1.0f); 
+   glTexCoord2f(0.995f, 0.005f); glVertex3f(-1.0f, -1.0f,  1.0f);
+   glTexCoord2f(0.995f, 0.995f); glVertex3f(-1.0f,  1.0f,  1.0f);
+   glTexCoord2f(0.005f, 0.995f); glVertex3f(-1.0f,  1.0f, -1.0f);
+
+   // Bottom face. Orange
+   glNormal3f(0.0f, 1.0f, 0.0f);
+   glColor4f(1.0,0.5,0.0,1);
+
+   glTexCoord2f(0.005f, 0.005f); glVertex3f(-1.0f, -1.0f, 1.0f);
+   glTexCoord2f(0.995f, 0.005f); glVertex3f( 1.0f, -1.0f, 1.0f);
+   glTexCoord2f(0.995f, 0.995f); glVertex3f( 1.0f, -1.0f,-1.0f);
+   glTexCoord2f(0.005f, 0.995f); glVertex3f(-1.0f, -1.0f,-1.0f);
+
+   // Top Face. White
+   glNormal3f(0.0f, 1.0f, 0.0f);
+   glColor4f(1,1,1,1);
+
+   glTexCoord2f(0.005f, 0.005f); glVertex3f(-1.0f, 1.0f, 1.0f);
+   glTexCoord2f(0.995f, 0.005f); glVertex3f( 1.0f, 1.0f, 1.0f);
+   glTexCoord2f(0.995f, 0.995f); glVertex3f( 1.0f, 1.0f,-1.0f);
+   glTexCoord2f(0.005f, 0.995f); glVertex3f(-1.0f, 1.0f,-1.0f);
+
+   // All polygons have been drawn.
+   glEnd();
+
+   // Move back to the origin
+   glLoadIdentity();
+
+   // We need to change the projection matrix for the text rendering.  
+   glMatrixMode(GL_PROJECTION);
+
+   // But we like our current view too; so we save it here.
+   glPushMatrix();
+   
+   // All done drawing.  Let's show it.
+   glutSwapBuffers();
+
+}
+/////////////////////////////////////////////////////////////
+// rotateAround function. Provide the following:
+// vx, vy, vz: The vector of the arbitrary axis
+// cx, cy, cz: the unit cube's center
+/////////////////////////////////////////////////////////////
+
+void rotateAround(int vx, int vy, int vz, int cx, int cy, int cz){
+
+   glTranslatef(cx,cy,cz+Z_Off);
+   glRotatef(15,vx,vy,vz);
+   glTranslatef(-cx,-cy,-cz-Z_Off);
+}
+
+/////////////////////////////////////////////////////////////
+// myCBKey function, called when a mouse button is pressed
+/////////////////////////////////////////////////////////////
+void myCBKey(int button, int state, int x, int y)
+{
+   if((button == GLUT_RIGHT_BUTTON) && (state == GLUT_DOWN)){
+      rotateAround(vectorX, vectorY, vectorZ, centerX, centerY, centerZ);
+   }
+}
+
+///////////////////////////////////////////////////////////////
+// Callback routine executed whenever the window is resized. //
+//////////////////////////////////////////////////////////////
+void CallBackResizeScene(int Width, int Height)
+{
+   // Let's not core dump, no matter what.
+   if (Height == 0)
+      Height = 1;
+
+   glViewport(0, 0, Width, Height);
+
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   gluPerspective(45.0f,(GLfloat)Width/(GLfloat)Height,0.1f,100.0f);
+
+   glMatrixMode(GL_MODELVIEW);
+
+   Window_Width  = Width;
+   Window_Height = Height;
+}
+
+////////////////////////////////////////////////////////
+//   Setup your program before passing the control    //
+//   to the main OpenGL event loop.                   //
+////////////////////////////////////////////////////////
+void MyInit(int Width, int Height) 
+{
+   // Color to clear color buffer to.
+   glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+
+   // Depth to clear depth buffer to; type of test.
+   glClearDepth(1.0);
+   glDepthFunc(GL_LESS); 
+
+   // Enables Smooth Color Shading; try GL_FLAT for (lack of) fun.
+   glShadeModel(GL_SMOOTH);
+
+   // Load up the correct perspective matrix; using a callback directly.
+   CallBackResizeScene(Width,Height);
+}
+
+///////////////////////////////////////////////////
+// main() function.                              //
+//   There are general steps in making           //
+//   an OpenGL application.                      //
+//   Inits OpenGL.                               //
+//   Calls our own init function                 //
+//   then passes control onto OpenGL.            //   
+///////////////////////////////////////////////////
+int main(int argc, char **argv)
+{
+
+   //Initializing the arbitrary vector and center point
+   vectorX = atoi(argv[4])-atoi(argv[1]);
+   vectorY = atoi(argv[5])-atoi(argv[2]);
+   vectorZ = atoi(argv[6])-atoi(argv[3]);
+   centerX = atoi(argv[7]);
+   centerY = atoi(argv[8]);   
+   centerZ = atoi(argv[9]);
+   
+   glutInit(&argc, argv);
+   
+   // To see OpenGL drawing, take out the GLUT_DOUBLE request.
+   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+
+   // The following is for window creation.
+   // Set Window size
+   glutInitWindowSize(Window_Width, Window_Height);
+   // Create and Open a window with its title.
+   Window_ID = glutCreateWindow(PROGRAM_TITLE);
+
+   // Register and install the callback function to do the drawing. 
+   glutDisplayFunc(&CallBackRenderScene);
+
+   // If there's nothing to do, draw.
+   glutIdleFunc(&CallBackRenderScene);
+
+   // It's a good idea to know when our window's resized.
+   glutReshapeFunc(&CallBackResizeScene);
+
+   // Register and install the callback function
+   glutMouseFunc(&myCBKey);
+
+   // OK, OpenGL's ready to go.  Let's call our own init function.
+   MyInit(Window_Width, Window_Height);
+
+   // Print out a bit of help dialog.
+   printf("\n%s\n\n", PROGRAM_TITLE);
+
+   // Above functions represents those you will do to set up your
+   // application program.
+   // Now pass off control to OpenGL.
+   glutMainLoop(); 
+   // Never returns.
+   return 1; 
+}
+
